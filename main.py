@@ -108,28 +108,48 @@ log_partition_function = max_neg_energy + np.log(np.sum(stable_exp_neg_energies)
 # Calculate final probabilities
 ebm_probs = np.exp(-ebm_energies - log_partition_function)
 
-# --- Plot everything
-plt.figure(figsize=(12, 6))
+# --- Plot everything using subplots
+fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True, gridspec_kw={
+                        'height_ratios': [2, 2]})  # Adjust height ratios if needed
+fig.suptitle('Comparison: MLP vs EBM & MLP Fit', fontsize=16)  # Updated title
 
-# True data distribution
-plt.hist(x_data, bins=50, density=True, alpha=0.5, label='True Data Distribution')
+# --- Top Subplot (Densities and EBM) ---
+ax = axs[0]
 
-# MLP predicted distribution (plot mean as a curve)
-# Note: The MLP output is the *mean* prediction, not a density like the EBM.
-# Plotting it directly on the same axis as densities might be slightly misleading
-# conceptually, but useful for comparison. Consider the Y-axis label carefully.
-plt.plot(x_grid, mlp_preds, label='MLP Predicted Mean', color='green')
+# True data distribution (Histogram)
+ax.hist(x_data, bins=50, density=True, alpha=0.5, label='True Data Distribution (Histogram)')
 
 # EBM probability (exp(-E)) - now numerically stable
-plt.plot(x_grid, ebm_probs, label='EBM Modeled p(x)', color='red')
+ax.plot(x_grid, ebm_probs, label='EBM Modeled p(x)', color='red')
 
-plt.legend()
-plt.title('Comparison: MLP vs EBM on Bimodal Data (After Tuning)')
-plt.xlabel('x')
-plt.ylabel('Density / MLP Output')  # Adjusted label
-# plt.ylim(bottom=min(0, plt.ylim()[0]), top=0.2)  # Ensure y-axis starts at or below 0
-plt.ylim(bottom=-0.25, top=0.2)  # Ensure y-axis starts at or below 0
-plt.grid(True)
-plt.savefig('mlp_vs_ebm_tuned.png')  # Save to a new file
-print("Plot saved to mlp_vs_ebm_tuned.png")
-# plt.show() # You can uncomment this if you want to display interactively
+# Removed MLP line from this plot for clarity
+ax.set_ylabel('Density')  # Simplified label
+ax.grid(True)
+ax.legend()
+ax.set_title('EBM Density Estimation')  # Updated title
+
+
+# --- Bottom Subplot (MLP Fit to Data) ---
+ax = axs[1]
+
+# Plot raw data points (x vs y)
+ax.scatter(x_data, y_data, s=10, alpha=0.3, color='blue', label='Raw Data Points (y=x)')
+
+# Plot MLP predicted mean
+ax.plot(x_grid, mlp_preds, label='MLP Predicted Mean E[y|x]', color='green', linewidth=2)
+
+
+ax.set_xlabel('x')
+ax.set_ylabel('y')  # Changed y-label
+# ax.yaxis.set_ticks([]) # Remove this line - we need y-axis ticks now
+ax.grid(True)  # Enable grid on both axes
+# ax.set_ylim(-0.1, 0.1) # Remove this line or adjust as needed
+ax.legend()  # Add legend back
+ax.set_title('MLP Regression Fit (Predicting Mean)')  # Updated title
+
+
+# --- Final Adjustments and Save ---
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+plt.savefig('mlp_ebm_comparison_with_mlp_fit.png')  # New filename
+print("Plot saved to mlp_ebm_comparison_with_mlp_fit.png")
+# plt.show()
