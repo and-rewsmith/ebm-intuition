@@ -25,8 +25,10 @@ cluster3_tail_x = np.random.normal(loc=6.0, scale=0.3, size=(n_tail, 1))
 y_cluster1 = cluster1_x.copy()
 y_cluster2 = cluster2_x.copy()
 
-n_tail_mode1 = n_tail // 2
-n_tail_mode2 = n_tail - n_tail_mode1
+# --- >>> Make one tail mode significantly smaller <<< ---
+# n_tail_mode1 = n_tail // 2 # Original even split
+n_tail_mode1 = max(1, n_tail // 10)  # Assign ~10% to the first mode (y=0), ensure at least 1 sample
+n_tail_mode2 = n_tail - n_tail_mode1  # Assign the rest to the second mode (y=8)
 y_tail_mode1 = np.zeros((n_tail_mode1, 1))
 y_tail_mode2 = np.full((n_tail_mode2, 1), 8.0)
 y_cluster3_tail = np.vstack([y_tail_mode1, y_tail_mode2])
